@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "animejs": "4.5.0",
+    "gsap": "3.15.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "name": "pianyu-studio",
+  "scripts": {
+    "build": "esbuild frontend/motion.jsx --bundle --minify --jsx=automatic --target=es2020 --outdir=studio/web/effects --external:/ui/* --legal-comments=linked"
+  },
+  "private": true
+}

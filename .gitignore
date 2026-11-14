@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.venv/
+.venv-*/
+node_modules/
+.tools/
+__pycache__/
+*.py[cod]
+data/
+models/
