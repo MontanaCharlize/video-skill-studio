@@ -1,6 +1,10 @@
 'use strict';
 
 const $ = id => document.getElementById(id);
+// 静态托管（如 GitHub Pages）时，可用 window.PIANYU_API_BASE 指向单独部署的后端。
+// 默认空字符串，本机 uvicorn 与 /ui 同源时行为不变。
+const API_BASE = String(globalThis.PIANYU_API_BASE || '').replace(/\/+$/, '');
+const api = path => (typeof path === 'string' && path.startsWith('/api/') ? API_BASE + path : path);
 const LOOKS = {editorial:'杂志剪辑',documentary:'纪实电影',diagram:'图解动画'};
 const defaults = {background:'#142924',text:'#EEFAED',accent:'#A4E68D',music:'ambient',music_volume:.14,
   pace:'normal',tone:'自然、清楚，多用生活例子',audience:'普通观众',look:'editorial',visual_notes:''};
@@ -15,7 +19,7 @@ const shotJobs = new WeakMap();
 const attemptedShots = new WeakSet();
 const thumbnails = new Map();
 const statuses = {approved:'已确认', pending:'待审核', failed:'待重试', running:'生成中', missing:'待生成', diagram:'程序图解'};
-const sampleMedia = '/api/examples/media/';
+const sampleMedia = api('/api/examples/media/');
 const approaches = [
   ['因果解释','先并列观察，再呈现原因和反例。','先展示金属与木头的对比，再解释热量传递，最后用冷热反例收束。'],
   ['步骤教学','沿着一条路径，逐步交代发生了什么。','以流程图串联发出、转发与接收，每镜只讲一步。'],
@@ -27,7 +31,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function request(path, data) {
   const options = data instanceof FormData ? {method:'POST',body:data} :
     data === undefined ? {} : {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)};
-  const response = await fetch(path, options);
+  const response = await fetch(api(path), options);
   if (!response.ok) {
     let detail;
     try { detail = (await response.json()).detail; } catch {}
@@ -222,7 +226,7 @@ function setDraft(style, name='') {
   topSkill();
   $('draft-state').textContent = name ? '已保存' : '待确认';
   $('download-style').hidden = !name;
-  if (name) $('download-style').href = '/api/profiles/'+encodeURIComponent(name)+'/download';
+  if (name) $('download-style').href = api('/api/profiles/'+encodeURIComponent(name)+'/download');
   for (const key of ['background','text','accent','music','pace','look','visual_notes','tone','audience']) $(key).value=draft[key];
   $('volume').value = draft.music_volume;
   $('volume-value').textContent = Math.round(draft.music_volume*100)+'%';
@@ -234,7 +238,7 @@ function setDraft(style, name='') {
   const audio = $('music-player');
   audio.hidden = draft.music==='none';
   if (audio.hidden) {audio.pause();audio.removeAttribute('src');}
-  else if (!audio.getAttribute('src') || oldMusic!==draft.music) audio.src='/api/music/'+draft.music;
+  else if (!audio.getAttribute('src') || oldMusic!==draft.music) audio.src=api('/api/music/'+draft.music);
   audio.volume = Math.min(1,.22+2*draft.music_volume);
 }
 async function refreshProfiles(active='') {
@@ -423,7 +427,7 @@ function timelineState() {
     if(asset && image.dataset.asset!==asset){
       image.dataset.asset=asset;
       image.onerror=()=>{image.onerror=null;thumbnail(scene,image,true);};
-      image.src='/api/assets/clip/'+asset+'/poster';
+      image.src=api('/api/assets/clip/'+asset+'/poster');
     }else if(!asset && image.dataset.asset){
       delete image.dataset.asset;
       thumbnail(scene,image);
@@ -447,7 +451,7 @@ function releaseThumbnails() {
 }
 
 function thumbnail(scene,img,fallback=false) {
-  if(scene.reference_id){img.src='/api/assets/image/'+scene.reference_id;return;}
+  if(scene.reference_id){img.src=api('/api/assets/image/'+scene.reference_id);return;}
   const key=JSON.stringify([scene.kind,scene.title,scene.narration,scene.points,project.style]);
   let entry=thumbnails.get(scene.id);
   if(entry?.key!==key){
@@ -467,7 +471,7 @@ function setProject(value, id='') {
   project=value;selected=0;history=[];candidates.clear();releaseThumbnails();
   for (const scene of project.scenes) {
     const pending=scene.clip_versions?.find(version=>version.pending);
-    if(pending)candidates.set(scene.id,{asset:{asset_id:pending.asset_id,url:'/api/assets/clip/'+pending.asset_id,warnings:[]},signature:pending.signature});
+    if(pending)candidates.set(scene.id,{asset:{asset_id:pending.asset_id,url:api('/api/assets/clip/'+pending.asset_id),warnings:[]},signature:pending.signature});
   }
   $('topic').value=project.topic;
   $('direction').value=project.direction;
@@ -631,7 +635,7 @@ function showCurrent(forceFrame=false) {
     if(currentShot()?.approved){play('/api/assets/clip/'+scene.clip_id);return;}
   }
   if(scene.reference_id && !forceFrame) {
-    $('frame').src='/api/assets/image/'+scene.reference_id;return;
+    $('frame').src=api('/api/assets/image/'+scene.reference_id);return;
   }
   setTimeout(async()=>{
     if(version!==frameVersion)return;
@@ -648,7 +652,7 @@ function showCurrent(forceFrame=false) {
 }
 function play(url) {
   frameVersion+=1;
-  $('player').src=url;$('player').hidden=false;$('frame').hidden=true;$('show-frame').hidden=false;
+  $('player').src=api(url);$('player').hidden=false;$('frame').hidden=true;$('show-frame').hidden=false;
 }
 function showCandidate(candidate) {
   play(candidate.asset.url);
@@ -710,7 +714,7 @@ $('version-select').addEventListener('change',()=>{
 $('compare-version').addEventListener('click',()=>{
   const showing=$('editor').classList.toggle('comparing');
   const player=$('compare-player');
-  if(showing)player.src='/api/assets/clip/'+current().clip_id;
+  if(showing)player.src=api('/api/assets/clip/'+current().clip_id);
   else player.pause();
   $('compare-version').textContent=showing?'结束对比':'对比已确认版';
 });

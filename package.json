@@ -10,7 +10,8 @@
   },
   "name": "pianyu-studio",
   "scripts": {
-    "build": "esbuild frontend/motion.jsx --bundle --minify --jsx=automatic --target=es2020 --outdir=studio/web/effects --external:/ui/* --legal-comments=linked"
+    "build": "esbuild frontend/motion.jsx --bundle --minify --jsx=automatic --target=es2020 --outdir=studio/web/effects --external:/ui/* --legal-comments=linked",
+    "build:pages": "node tools/build-pages.mjs"
   },
   "private": true
 }

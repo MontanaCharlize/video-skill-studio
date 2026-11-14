@@ -91,3 +91,23 @@ python -m studio.cli render project.json output --engine hybrid
 首页用 Three.js 绘制玻璃折射和粒子换场。视频工作台用 GSAP 做面板入场，Anime.js 更新进度环并在最近工程首次显示或新增时做轻量错峰。动效响应系统「减少动态效果」设置。最近工程保存到当前浏览器，工程 JSON 可通过「保存工程」下载，引用的素材保存在本地服务。前端 bundle 已编译到 studio/web/effects。修改 frontend 下的动效源码后运行 npm ci 和 npm run build。
 
 动效来源：[GSAP](https://gsap.com/) · [Anime.js](https://animejs.com/) · [Three.js](https://threejs.org/)
+
+## 静态托管（GitHub Pages）
+
+仓库的 `docs/` 目录是 `studio/web/` 的静态构建，可直接用 GitHub Pages 发布：**Settings → Pages → Source 选 `Deploy from a branch`，分支 `main`、目录 `/docs`**。工作台会以 `https://<用户名>.github.io/video-skill-studio/` 打开。
+
+Pages 只提供前端静态文件，没有 `/api` 后端，所以页面能渲染、样片能播放，但生成、预览和合成都会失败。要让它真正可用，需要把 FastAPI 后端单独部署（任意能跑 `uvicorn studio.app:app` 的服务器或容器平台），然后：
+
+1. 打开 `docs/config.js`，把 `window.PIANYU_API_BASE` 改成后端地址，例如 `'https://api.example.com'`（不要带结尾斜杠）。
+2. 在后端 `.env` 填 `VIDEO_CORS_ORIGINS=https://<用户名>.github.io`，让 Pages 域名的跨域请求可通行。
+3. 提交 `docs/config.js` 的改动。
+
+后端和前端不同域时，`/api/*` 请求都会带上 `PIANYU_API_BASE` 前缀；同源部署（`uvicorn` 直接服务 `/ui`）时该变量留空，行为与之前完全一致。
+
+修改 `studio/web/` 或 `examples/outputs/` 的样片后，用下面的命令重新生成 `docs/`，再提交：
+
+```bash
+npm run build:pages
+```
+
+脚本会重写 `/ui/*` 为相对路径、复制样片素材、写入 `.nojekyll` 与 404 页面。`docs/config.js` 首次生成后不会被覆盖，可以放心手改。

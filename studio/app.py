@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 import json
+import os
 from pathlib import Path
 import re
 from tempfile import TemporaryDirectory
@@ -11,6 +12,7 @@ from uuid import uuid4
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field, ValidationError
@@ -25,6 +27,17 @@ from .render import SIZE, build, cue_text, draw_card, font, make_track
 from .video_models import asset_path, generate_h3, media_cmd, media_executable, model_config, save_clip, save_reference, selectable_models, video_resolution
 
 app = FastAPI(title="视频制作台")
+# 前端托管在别的域（例如 GitHub Pages）时，用 VIDEO_CORS_ORIGINS 逗号分隔列出允许的源。
+# 同源部署时保持为空，不注册中间件。
+CORS_ORIGINS = [item.strip() for item in os.environ.get("VIDEO_CORS_ORIGINS", "").split(",") if item.strip()]
+if CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 app.include_router(account_router)
 WEB = Path(__file__).parent / "web"
 app.mount("/ui", StaticFiles(directory=WEB), name="ui")

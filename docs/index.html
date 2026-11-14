@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>片语 · 知识视频制作台</title>
+<meta name="description" content="通过风格对话、分镜、视频模型和程序图解制作中文知识视频。">
+<link rel="stylesheet" href="./studio.css">
+<link rel="stylesheet" href="./effects/motion.css">
+<link rel="stylesheet" href="./home.css">
+<link rel="stylesheet" href="./cutroom.css">
+<link rel="stylesheet" href="./workspace.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+</script>
+<script src="./config.js"></script>
+<script src="./studio.js" defer></script>
+<script src="./effects/motion.js" defer></script>
+<script type="module" src="./home.js?v=2"></script>
+</head>
+<body data-page="chat">
+<div class="shell">
+<aside class="rail">
+  <a class="brand" href="#chat" aria-label="片语首页"><span class="brand-icon"><svg viewBox="0 0 24 24" fill="none"><path d="m8 5 11 7-11 7V5Z" fill="currentColor"/><path d="M4 7v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>片语</span></a>
+  <nav aria-label="工作区"><button id="nav-chat" class="nav selected" data-tab="chat"><span>首页</span></button>
+  <button id="nav-video" class="nav" data-tab="video"><span>项目</span></button>
+  <button id="nav-setup" class="nav" data-tab="setup"><span>控制台</span></button></nav>
+  <div class="rail-foot" id="mode"></div>
+</aside>
+<main>
+  <header class="top"><span id="breadcrumb">风格对话</span><span id="top-skill" hidden></span></header>
+  <section id="chat-page" class="chat-page">
+    <section id="welcome" class="home-hero" aria-labelledby="home-title">
+      <h1 id="home-title" class="visually-hidden">让知识有画面</h1>
+      <div class="home-poster" aria-hidden="true">让知识<br>有画面</div>
+      <canvas id="home-type" class="home-canvas" aria-hidden="true"></canvas>
+      <canvas id="home-glass" class="home-canvas home-glass" tabindex="0" aria-label="玻璃方块，拖动或按左右方向键旋转" hidden></canvas>
+      <div class="home-slide-nav" aria-label="切换首页画面">
+        <button type="button" class="home-arrow" id="home-prev" aria-label="上一个画面"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></button>
+        <button type="button" class="home-arrow" id="home-next" aria-label="下一个画面"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+      </div>
+      <nav class="home-dots" aria-label="首页画面">
+        <button type="button" aria-label="让知识有画面" aria-current="true"></button>
+        <button type="button" aria-label="把问题讲明白"></button>
+        <button type="button" aria-label="让灵感成一片"></button>
+      </nav>
+      <div class="home-foot">
+        <p>从一个想法，<br><strong>到一条视频。</strong></p>
+        <div class="home-entry">
+          <a href="#video" class="home-start">开始项目 <span aria-hidden="true">↗</span></a>
+          <button type="button" class="home-start home-account" data-account>登录 / 注册</button>
+        </div>
+        <span class="home-rule" aria-hidden="true"></span>
+      </div>
+    </section>
+    <section class="showcase" aria-labelledby="showcase-title">
+      <div class="showcase-copy">
+        <p class="section-label">片语样片</p>
+        <h2 id="showcase-title">同样的温度，<br>为什么摸起来<br>不一样？</h2>
+        <p>把金属和木头放在同一间房间。用一个实验镜头引出问题，再用三幕图解说明热量怎么传递。</p>
+        <div class="showcase-links"><button class="primary" data-open-sample>打开样片工程 <span aria-hidden="true">↗</span></button></div>
+      </div>
+      <figure class="showcase-media">
+        <video controls playsinline preload="none" poster="./examples/metal-cover.webp" src="./examples/metal-hybrid-demo.mp4" aria-label="样片：金属为什么摸起来更冷"></video>
+        <figcaption><span>金属为什么摸起来更冷？</span><span>实验场景 / 程序图解</span></figcaption>
+      </figure>
+    </section>
+    <section class="home-intro" aria-labelledby="intro-title">
+      <p class="section-label">关于片语</p>
+      <div><h2 id="intro-title">把一个问题，<br>讲成一条片。</h2>
+      <p>片语是一个知识视频工作台。先聊你想讲什么、讲给谁听，拿到第一版分镜后逐镜改旁白、补画面、看预览，再合成带字幕的成片。</p>
+      <a href="#video" class="home-start">开始项目 <span aria-hidden="true">↗</span></a></div>
+    </section>
+  </section>
+  <section id="video-page" class="video-page" hidden>
+    <div class="workspace-switch" aria-label="制作面板"><button type="button" data-workspace-view="project" aria-pressed="false">项目与分镜</button><button type="button" data-workspace-view="chat" aria-pressed="true">创作对话</button></div>
+    <div class="workspace" id="workspace" data-view="chat">
+    <div class="project-pane" id="project-pane">
+    <div id="project-hub">
+    <div class="project-intro">
+      <div><h1>新项目</h1><p>在对话里说出想讲的主题，第一版分镜会出现在这里。</p></div>
+      <div class="line-actions"><button id="apply-project-style" type="button" class="text-button" hidden>将所选风格用于当前项目</button><button id="resume-project" type="button" class="secondary" hidden>继续当前项目 ↗</button></div>
+    </div>
+    <div class="brief-layout">
+      <details class="panel brief" id="brief-panel">
+        <summary>项目资料与风格</summary>
+        <div class="segments" role="tablist" aria-label="创作参数" data-tabs>
+          <button type="button" id="brief-topic-tab" role="tab" aria-controls="brief-topic" aria-selected="true">主题与风格</button>
+          <button type="button" id="brief-material-tab" role="tab" aria-controls="brief-material" aria-selected="false" tabindex="-1">参考资料</button>
+        </div>
+        <div id="brief-topic" role="tabpanel" aria-labelledby="brief-topic-tab">
+          <label>视频主题<input id="topic" maxlength="70" placeholder="例如：金属为什么摸起来更冷？"></label>
+          <label>个人 Skill<select id="video-profile"><option value="">默认风格</option></select></label>
+          <label>本片导演要求<input id="direction" maxlength="700"></label>
+        </div>
+        <div id="brief-material" role="tabpanel" aria-labelledby="brief-material-tab" hidden>
+          <label>参考资料或讲解稿<textarea id="source" rows="4" maxlength="11000" placeholder="粘贴讲解资料，每段换一行。"></textarea></label>
+        </div>
+        <div class="form-end"><button id="plan" class="secondary" type="button">用这些资料生成分镜</button><span id="selected-style" class="muted"></span></div>
+      </details>
+      <aside class="panel recent-projects" aria-labelledby="recent-heading">
+        <div class="heading"><h2 id="recent-heading">最近工程</h2><button id="open-project" type="button" class="text-button">导入工程 ↗</button></div>
+        <input type="file" id="project-file" accept=".json,application/json" hidden>
+        <p id="recent-empty" class="muted">保存后的工程会显示在此处。</p>
+        <ul id="recent-projects"></ul>
+      </aside>
+    </div>
+    <div id="examples" class="starting-points" aria-label="示例主题"></div>
+    </div>
+    <dialog id="style-dialog" class="workspace-dialog" aria-labelledby="style-dialog-title">
+      <div class="dialog-top"><h2 id="style-dialog-title">个人风格</h2><form method="dialog"><button class="text-button" type="submit">关闭</button></form></div>
+      <form id="style-form" class="inline-form style-form"><label class="visually-hidden" for="style-message">描述视频风格</label><input id="style-message" maxlength="700" placeholder="例如：黑白纪实、慢一点讲" required><button class="secondary" type="submit">调整风格</button></form>
+      <p id="style-reply" class="muted" role="status"></p>
+    <div class="draft panel">
+      <div class="heading"><div><span class="small-label">个人 Skill</span><h2>风格草稿</h2></div><span id="draft-state" class="badge">待确认</span></div>
+      <div class="style-preview" id="style-preview"><div class="sample-ring"></div><div><span id="sample-look">杂志剪辑</span><strong>让知识有画面</strong></div></div>
+      <div class="colors"><label>背景<input id="background" type="color"></label><label>文字<input id="text" type="color"></label><label>强调<input id="accent" type="color"></label></div>
+      <div class="pair"><label>视觉方向<select id="look"><option value="documentary">纪实电影</option><option value="editorial">杂志剪辑</option><option value="diagram">图解动画</option></select></label><label>旁白语速<select id="pace"><option value="slow">慢一些</option><option value="normal">自然</option><option value="fast">稍快</option></select></label></div>
+      <label>配乐<select id="music"><option value="ambient">轻柔氛围</option><option value="piano">温暖钢琴</option><option value="pulse">轻快电子</option><option value="none">无配乐</option></select></label>
+      <audio id="music-player" controls preload="none" aria-label="试听配乐"></audio>
+      <label class="volume">配乐音量 <span id="volume-value"></span><input id="volume" type="range" min="0" max=".35" step=".01"></label>
+      <details><summary>受众与镜头偏好</summary><label>默认受众<input id="audience" maxlength="40"></label><label>讲解口吻<input id="tone" maxlength="100"></label><label>画面偏好<textarea id="visual_notes" rows="2" maxlength="240"></textarea></label></details>
+      <div class="profile-area"><label id="load-profile-label" hidden>编辑已保存风格<select id="edit-profile"><option value="">选择风格</option></select></label><label>个人风格名<input id="profile-name" placeholder="例如 slow-cinema" maxlength="56"></label>
+        <button id="save-style" class="primary wide">确认并保存风格</button><div class="line-actions"><button id="to-video" class="text-button">用这套风格制作 →</button><a id="download-style" hidden>下载 Skill</a></div>
+      </div>
+    </div>
+    </dialog>
+    <section id="editor" data-mode="edit" aria-labelledby="editor-title" hidden>
+      <header class="cut-head">
+        <div><button id="back-projects" type="button" class="text-button">← 项目</button><h1 id="editor-title" tabindex="-1">分镜工作台</h1><p id="editor-meta" class="muted"></p></div>
+        <div class="cut-modes" aria-label="制作阶段"><button type="button" data-cut-mode="edit" aria-pressed="true">分镜</button><button type="button" data-cut-mode="review">审核</button><button type="button" data-cut-mode="export">交付</button></div>
+        <button id="save-project" class="secondary">保存工程</button>
+      </header>
+      <section class="timeline" aria-labelledby="timeline-title">
+        <div class="timeline-head"><div><h2 id="timeline-title">分镜</h2><span id="timeline-summary"></span></div><button id="add-scene" type="button" class="secondary">＋ 镜头</button></div>
+        <div id="scenes" class="scenes" role="tablist" aria-label="选择分镜"></div>
+        <button id="next-review" type="button" class="secondary" hidden>下一个待审核镜头 →</button>
+      </section>
+      <div class="cut-grid">
+        <aside class="script-rail" aria-labelledby="script-title">
+          <h2 id="script-title">讲解脚本</h2>
+          <div id="script-lines"></div>
+        </aside>
+        <div class="editing">
+        <div class="panel edit-panel">
+          <div class="heading"><h3>当前镜头</h3><div class="line-actions"><button id="move-left" class="text-button">前移</button><button id="move-right" class="text-button">后移</button><button id="remove" class="text-button">删除</button></div></div>
+          <div class="segments" role="tablist" aria-label="镜头参数" data-tabs>
+            <button type="button" id="shot-story-tab" role="tab" aria-controls="shot-story" aria-selected="true">讲解</button>
+            <button type="button" id="shot-visual-tab" role="tab" aria-controls="shot-visual" aria-selected="false" tabindex="-1">画面</button>
+            <button type="button" id="shot-diagram-tab" role="tab" aria-controls="shot-diagram" aria-selected="false" tabindex="-1">图解</button>
+          </div>
+          <div id="shot-story" role="tabpanel" aria-labelledby="shot-story-tab">
+            <label>镜头标题<input id="scene-title" maxlength="32"></label>
+            <label>旁白<textarea id="scene-narration" rows="4" maxlength="420"></textarea></label>
+            <div id="sources" class="muted"></div>
+          </div>
+          <div id="shot-visual" role="tabpanel" aria-labelledby="shot-visual-tab" hidden>
+          <label>本镜制作方式<select id="scene-visual-method"><option value="auto">自动 · 优先使用已确认的素材</option><option value="diagram">程序图解 · 公式、数据与结构</option><option value="footage">视频素材 · 动作、材质与氛围</option></select></label>
+          <div class="pair"><label>运镜<select id="scene-camera"><option value="locked">固定</option><option value="push">慢推</option><option value="pan">横移</option><option value="top">俯拍</option></select></label><label>视频时长（秒）<input id="scene-seconds" type="number" min="4" max="15"></label></div>
+          <label>给视频模型的画面描述<textarea id="scene-visual" rows="2" maxlength="500" placeholder="写出主体、环境和一个具体动作"></textarea></label>
+          </div>
+          <div id="shot-diagram" role="tabpanel" aria-labelledby="shot-diagram-tab" hidden>
+            <label>图解样式<select id="scene-kind"><option value="title">标题</option><option value="cards">重点讲解</option><option value="steps">步骤</option><option value="timeline">时间线</option><option value="compare">对比</option></select></label>
+            <label>画面要点，每行一条<textarea id="scene-points" rows="4"></textarea></label>
+          </div>
+          <form id="edit-form" class="inline-form"><label class="visually-hidden" for="edit-message">对本镜的修改意见</label><input id="edit-message" maxlength="600" placeholder="例如：换成一个生活中的例子"><button type="submit" class="secondary">按意见改镜</button></form>
+        </div>
+        <section class="panel monitor-panel" aria-labelledby="monitor-title">
+          <div class="heading"><div><h2 id="monitor-title" tabindex="-1">画面与素材</h2><span id="monitor-meta" class="muted"></span></div><button id="show-frame" class="text-button" hidden>查看分镜画面</button></div>
+          <div class="monitor-pair">
+            <div class="monitor"><img id="frame" alt="当前镜头参考画面"><video id="player" controls playsinline hidden></video></div>
+            <figure class="comparison"><video id="compare-player" aria-label="已确认版本" controls playsinline preload="metadata"></video><figcaption>已确认版本</figcaption></figure>
+          </div>
+          <div id="candidate-review" class="candidate-review" hidden><span id="asset-checks"></span><button id="approve" class="primary">确认使用本镜</button></div>
+          <div id="version-bar" class="version-bar" hidden><label>素材版本<select id="version-select"></select></label><button id="restore-version" type="button" class="secondary" hidden>恢复此版</button><button id="compare-version" type="button" class="text-button" hidden>对比已确认版</button></div>
+          <div class="line-actions shot-actions">
+            <button id="generate-shot" class="primary" disabled>生成本镜素材</button>
+            <button id="retry-shot" class="secondary" hidden>重新生成本镜</button>
+            <button id="preview-scene" class="secondary">预览本镜剪辑</button>
+          </div>
+          <div class="line-actions shot-tools">
+            <button id="reference" class="text-button">上传参考首帧</button>
+            <button id="remove-reference" class="text-button" hidden>移除首帧</button>
+            <button id="import-clip" class="text-button">导入视频</button>
+            <button id="open-shot-prompt" class="text-button">编辑本镜提示词 ↘</button>
+          </div>
+          <input id="reference-file" type="file" accept="image/png,image/jpeg,image/webp" hidden><input id="clip-file" type="file" accept="video/*,.mov,.mp4" hidden>
+          <p id="provider" class="muted" hidden></p>
+          <div id="shot-status" class="muted shot-status" aria-live="polite"></div>
+          <div id="shot-progress" class="task-progress" data-progress hidden>
+            <div class="task-dial" role="progressbar" aria-label="MiniMax H3 镜头生成进度" aria-valuemin="0" aria-valuemax="100">
+              <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="task-track" cx="32" cy="32" r="26"/><circle class="task-arc" cx="32" cy="32" r="26" pathLength="100"/></svg><span class="task-value" aria-hidden="true"></span>
+            </div>
+            <div role="status"><strong data-phase></strong><span class="muted" data-progress-detail></span></div>
+          </div>
+          <div id="single-outputs" class="outputs" aria-live="polite"></div>
+        </section>
+      </div>
+      </div>
+      <details class="panel prompts prompt-drawer" id="prompt-drawer">
+        <summary>导演提示词与画面规范</summary>
+        <div class="segments" role="tablist" aria-label="提示词视图" data-tabs>
+          <button id="master-tab" type="button" role="tab" aria-selected="true" aria-controls="master-panel">全片</button>
+          <button id="shot-tab" type="button" role="tab" aria-selected="false" aria-controls="shot-panel" tabindex="-1">本镜</button>
+          <button id="code-tab" type="button" role="tab" aria-selected="false" aria-controls="code-panel" tabindex="-1">图解规范</button>
+        </div>
+        <div id="master-panel" role="tabpanel" aria-labelledby="master-tab">
+          <pre id="master-prompt"></pre><button id="copy-master" class="secondary">复制全片提示词</button>
+        </div>
+        <div id="shot-panel" role="tabpanel" aria-labelledby="shot-tab" hidden>
+          <label>本镜提示词<textarea id="shot-prompt" rows="6" maxlength="2000"></textarea></label>
+          <div id="prompt-checks" class="checks"></div>
+          <div class="line-actions"><button id="copy-shot" class="secondary">复制本镜</button><button id="reset-shot" class="text-button">恢复自动提示词</button></div>
+        </div>
+        <div id="code-panel" role="tabpanel" aria-labelledby="code-tab" hidden><pre id="code-rules"></pre></div>
+        <button id="download-prompts" class="text-button">导出提示词 JSON ↓</button>
+      </details>
+      <section class="panel final-cut" aria-labelledby="final-title">
+        <h3 id="final-title">全片预览与导出</h3>
+        <div class="final-controls">
+          <label>合成方式<select id="engine"><option value="hybrid">混合制作 · 已确认视频 + 图解</option><option value="model">全视频素材 · 每幕先确认</option><option value="code">程序图解 · 本地生成</option></select></label>
+          <div class="line-actions"><button id="preview" class="secondary">预览全片</button><button id="export" class="primary">导出 MP4</button></div>
+        </div>
+        <p id="delivery-summary" class="muted"></p>
+        <div id="full-render">
+          <video id="full-player" class="final-player" aria-label="全片预览" controls playsinline hidden></video>
+          <div id="progress-box" class="task-progress" data-progress hidden>
+            <div class="task-dial" role="progressbar" aria-label="本地镜头处理进度" aria-valuemin="0" aria-valuemax="100">
+              <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="task-track" cx="32" cy="32" r="26"/><circle class="task-arc" cx="32" cy="32" r="26" pathLength="100"/></svg><span class="task-value" aria-hidden="true"></span>
+            </div>
+            <div role="status"><strong data-phase></strong><span class="muted" data-progress-detail></span></div>
+          </div>
+          <div id="outputs" class="outputs" aria-live="polite"></div>
+        </div>
+      </section>
+    </section>
+    </div>
+    <aside class="workspace-chat" id="workspace-chat" aria-labelledby="conversation-title">
+      <header class="chat-heading"><div><h2 id="conversation-title">创作对话</h2><span id="chat-context">新项目</span></div><div class="line-actions"><button id="open-style" type="button" class="text-button">个人风格</button><button id="new-conversation" type="button" class="secondary">新对话</button></div></header>
+      <div class="chat-body">
+        <div class="chat-intro" id="chat-intro"><h3>想把什么<br>讲成一条片？</h3><p>告诉我主题、观众和你喜欢的风格。</p></div>
+        <div id="chat-thread" class="thread" role="log" aria-label="对话记录"></div>
+      </div>
+      <form id="chat-form" class="composer">
+        <label class="visually-hidden" for="chat-message">输入创作需求</label>
+        <textarea id="chat-message" rows="3" maxlength="700" placeholder="例如：给初中生讲棱镜怎么把白光分成彩色" required></textarea>
+        <div class="composer-foot"><span id="chat-target" aria-live="polite">生成第一版分镜</span><button type="submit" class="arrow" aria-label="发送消息">↑</button></div>
+      </form>
+    </aside>
+    </div>
+  </section>
+  <section id="setup-page" class="video-page setup-page" hidden>
+    <div class="video-head settings-intro"><div class="page-intro"><h1>控制台</h1><p>账号与制作环境。</p></div><button type="button" class="secondary" data-account>登录 / 注册</button></div>
+    <details class="console-models">
+    <summary>模型配置</summary>
+    <div class="console-actions"><a class="secondary setup-download" href="./env.example" download=".env.example">下载配置模板 <span aria-hidden="true">↓</span></a></div>
+    <div class="setup-grid">
+      <section class="panel setup-card setup-overview glass-card" aria-labelledby="overview-heading">
+        <h2 id="overview-heading">整体状态</h2>
+        <p id="setup-readiness" class="setup-readiness">正在检查</p>
+        <ul class="setup-overview-list">
+          <li><span>文本模型</span><span class="badge" id="text-config-state">正在检查</span></li>
+          <li><span>视频模型</span><span class="badge" id="video-config-state">正在检查</span></li>
+          <li><span>本地合成</span><span class="badge" id="local-config-state">正在检查</span></li>
+        </ul>
+        <p class="muted">模型权限与额度在实际调用时校验。</p>
+      </section>
+      <section class="panel setup-card setup-models glass-card" aria-labelledby="setup-models-heading">
+        <h2 id="setup-models-heading">云端模型</h2>
+        <div class="segments" role="tablist" aria-label="模型分类" data-tabs>
+          <button type="button" id="setup-text-tab" role="tab" aria-controls="setup-text" aria-selected="true">文本</button>
+          <button type="button" id="setup-video-tab" role="tab" aria-controls="setup-video" aria-selected="false" tabindex="-1">视频</button>
+        </div>
+        <div id="setup-text" role="tabpanel" aria-labelledby="setup-text-tab">
+          <h3>DeepSeek Flash</h3><p>风格对话、自动分镜和镜头修改。</p>
+          <details><summary>配置字段</summary><p>在 <code>.env</code> 填入 <code>DEEPSEEK_API_KEY</code>，然后重启网站。</p></details>
+          <a class="secondary" href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek Key ↗</a>
+        </div>
+        <div id="setup-video" role="tabpanel" aria-labelledby="setup-video-tab" hidden>
+          <h3 id="setup-video-model">MiniMax H3</h3><p>逐镜生成视频素材，支持参考首帧。</p>
+          <details><summary>配置字段</summary><p>在 <code>.env</code> 填入 <code>MINIMAX_API_KEY</code> 后重启。国际站 Key 对应 <code>MINIMAX_BASE_URL=https://api.minimax.io</code>。</p></details>
+          <a class="secondary" href="https://platform.minimax.cn/console/keys" target="_blank" rel="noopener noreferrer">获取 MiniMax Key ↗</a>
+        </div>
+      </section>
+      <article class="panel setup-card setup-local glass-card">
+        <div class="heading"><h2>本地依赖</h2><a class="text-button" href="#video">返回视频工作台 ↗</a></div>
+        <ul class="setup-checks">
+          <li id="ffmpeg-check">FFmpeg 和 ffprobe</li>
+          <li id="voice-check">Piper 中文语音</li>
+          <li id="fonts-check">中文字体</li>
+        </ul>
+      </article>
+    </div>
+    </details>
+  </section>
+</main>
+</div>
+<dialog id="account-dialog" class="workspace-dialog" aria-labelledby="account-title">
+  <div class="dialog-top"><h2 id="account-title">登录片语</h2><form method="dialog"><button class="text-button" type="submit">关闭</button></form></div>
+  <form id="account-form">
+    <label>账号名<input id="account-name" required autocomplete="username" pattern="[a-zA-Z0-9_\-]{3,32}" maxlength="32" placeholder="3–32 位字母、数字、下划线或短横线"></label>
+    <label>密码<input id="account-password" type="password" required minlength="8" maxlength="128" autocomplete="current-password" placeholder="至少 8 个字符"></label>
+    <div class="line-actions"><button id="account-submit" class="primary" type="submit">登录</button><button id="account-switch" class="text-button" type="button">注册账号</button></div>
+  </form>
+  <div id="account-signed-in" hidden><p id="account-user"></p><button id="logout" class="secondary" type="button">退出登录</button></div>
+  <p id="account-status" role="status" class="muted"></p>
+</dialog>
+<div id="notice" class="notice" role="status" hidden></div>
+</body></html>
